@@ -2,34 +2,35 @@
 
 **Name:** Akanksha Khot
 **ID:** 2025AC05508
-**Course:** M.Tech (AIML) — Machine Learning, BITS Pilani WILP
+**Course:** M.Tech (AIML), BITS Pilani WILP — Machine Learning
 
 ## a. Problem Statement
 
-The goal of this assignment is to implement and compare multiple classification
-models on a real-world dataset, then deploy an interactive Streamlit web
-application that lets a user upload test data, select a model, and view its
-evaluation metrics along with a confusion matrix / classification report. The
-underlying task is **binary classification**: predicting whether a breast tumor
-is **malignant** or **benign** based on measurements taken from a digitized image
-of a fine needle aspirate (FNA) of a breast mass.
+This assignment is about building and comparing a few different classification
+models on the same dataset, then wrapping them in a Streamlit app so someone
+can upload test data, pick a model, and see how it performs. The actual
+prediction task is binary classification — given measurements from a
+digitized image of a breast mass (a fine needle aspirate), predict whether
+it's malignant or benign.
 
 ## b. Dataset Description
 
 - **Dataset:** Breast Cancer Wisconsin (Diagnostic) Data Set
-- **Source:** UCI Machine Learning Repository (accessed here via scikit-learn's
-  built-in `load_breast_cancer()` loader, which packages the identical UCI dataset)
-- **Instances:** 569 (≥ 500 required ✅)
-- **Features:** 30 numeric, real-valued features (≥ 12 required ✅) — computed from
-  digitized images of cell nuclei, e.g. `mean radius`, `mean texture`,
-  `mean perimeter`, `mean area`, `mean smoothness`, `mean concavity`,
-  `worst radius`, `worst texture`, etc. (10 real-valued measurements, each
-  reported as mean, standard error, and "worst"/largest value → 30 features)
-- **Target variable:** Binary — `0 = malignant`, `1 = benign`
-- **Class balance:** 212 malignant / 357 benign
-- **Train/test split:** 80% train / 20% test, stratified by class, `random_state=42`
-- **Preprocessing:** All features standardized with `StandardScaler` (fit on
-  training data only, applied to test data)
+- **Source:** UCI Machine Learning Repository — loaded here through
+  scikit-learn's built-in `load_breast_cancer()` function, which is just a
+  convenient wrapper around the same UCI data.
+- **Size:** 569 rows, well above the 500-instance minimum.
+- **Features:** 30 numeric columns (also above the 12-feature minimum)
+  describing cell nuclei — things like radius, texture, perimeter, area,
+  smoothness and concavity. Each of these 10 base measurements is reported
+  three ways (mean, standard error, and "worst"/largest value), which is how
+  you get to 30 columns.
+- **Target:** binary — 0 for malignant, 1 for benign.
+- **Class split:** 212 malignant cases vs. 357 benign.
+- **Train/test split:** 80/20, stratified so the class balance holds in both
+  sets, `random_state=42` for reproducibility.
+- **Preprocessing:** features were standardized with `StandardScaler`, fit
+  only on the training data and then applied to the test set.
 
 ## c. GitHub Repository Link
 
@@ -37,16 +38,16 @@ of a fine needle aspirate (FNA) of a breast mass.
 
 ## d. Models Used
 
-Five classification models were trained on the same dataset and the same
-train/test split, so results are directly comparable:
+All five models were trained on the exact same train/test split, so the
+comparison below is apples-to-apples:
 
 1. Logistic Regression
 2. Decision Tree Classifier
-3. K-Nearest Neighbors (KNN, k=5)
-4. Naive Bayes Classifier (Gaussian)
-5. Random Forest Classifier (Ensemble, 200 trees)
+3. K-Nearest Neighbors (k=5)
+4. Gaussian Naive Bayes
+5. Random Forest (200 trees)
 
-### Comparison Table (evaluation on the held-out test set, n=114)
+### Comparison Table (test set, n=114)
 
 | ML Model Name | Accuracy | AUC | Precision | Recall | F1 | MCC |
 |---|---|---|---|---|---|---|
@@ -56,19 +57,19 @@ train/test split, so results are directly comparable:
 | Naive Bayes | 0.9298 | 0.9868 | 0.9444 | 0.9444 | 0.9444 | 0.8492 |
 | Random Forest (Ensemble) | 0.9561 | 0.9932 | 0.9589 | 0.9722 | 0.9655 | 0.9054 |
 
-*(These values are produced by `model/train_models.py`, which is deterministic
-given `random_state=42`. Re-running it will reproduce this exact table.)*
+*(These numbers come straight out of `model/train_models.py` — since
+`random_state` is fixed, running it again reproduces the same table.)*
 
 ### Observations
 
 | ML Model Name | Observation about model performance |
 |---|---|
-| Logistic Regression | Best overall performer on this dataset — the classes are close to linearly separable after standardization, so a simple linear decision boundary generalizes very well. Highest accuracy, precision, recall, F1, and MCC of all five models. |
-| Decision Tree | Weakest performer. A single unpruned tree overfits the training data and does not generalize as well; lower accuracy and the lowest AUC/MCC indicate its probability estimates and error trade-offs are noisier than the other models. |
-| kNN | Strong performance after feature scaling — distance-based similarity works well since the 30 features are all continuous and standardized. Ties with Random Forest on accuracy, F1 and MCC, and does so with a much simpler, non-parametric approach. |
-| Naive Bayes | Reasonable accuracy but a comparatively lower F1/MCC than LR, kNN, and RF. This is expected: Naive Bayes assumes feature independence, which is violated here since many of the 30 features (mean, SE, and worst versions of the same measurement) are highly correlated. Interestingly its AUC is still high, meaning its ranking of predictions is good even though the default 0.5 threshold is sub-optimal. |
-| Random Forest (Ensemble) | Second-best overall, and the ensemble smooths out the overfitting problem seen in the single Decision Tree — it matches kNN on accuracy/F1/MCC and has a near-top AUC, confirming that bagging many trees substantially improves on a single tree. |
-| **Overall Winner for this dataset** | **Logistic Regression** — it achieves the top score on every single metric (Accuracy 0.9825, AUC 0.9954, Precision/Recall/F1 0.9861, MCC 0.9623), showing that once the features are standardized, a simple, well-regularized linear model is very hard to beat on this particular dataset. |
+| Logistic Regression | This came out on top across every metric. Once the features are scaled, the two classes are almost linearly separable, so a fairly simple model does the job better than the fancier ones. |
+| Decision Tree | The weakest of the five. A single tree with no depth limit tends to memorize the training data rather than learn general patterns, which shows up as the lowest AUC and MCC here. |
+| kNN | Did surprisingly well after scaling the features — makes sense, since it's entirely based on distance between points, and standardized data plays nicely with that. Ended up tied with Random Forest on accuracy, F1 and MCC. |
+| Naive Bayes | Decent, but not the strongest. It assumes the features are independent of each other, which isn't really true here — a lot of these 30 columns are just different versions of the same underlying measurement (mean, standard error, worst). Interestingly the AUC is still quite high, so it's ranking predictions well even if the accuracy at the default threshold isn't as strong. |
+| Random Forest (Ensemble) | A clear improvement over the single Decision Tree — averaging across 200 trees clearly helps with the overfitting problem. Landed in a virtual tie with kNN and close behind Logistic Regression. |
+| **Overall winner for this dataset** | **Logistic Regression**, by a clear margin on every metric (Accuracy 0.9825, AUC 0.9954, F1 0.9861, MCC 0.9623). For this particular dataset, a simple linear model turned out to be hard to beat. |
 
 ## Repository Structure
 
@@ -77,10 +78,10 @@ project-folder/
 │-- app.py                     # Streamlit application
 │-- requirements.txt           # Python dependencies
 │-- README.md                  # This file
-│-- test_data.csv              # Held-out test set (features + true target) used in experiments
+│-- test_data.csv              # Held-out test set used in experiments
 │-- model/
-│   │-- train_models.py        # Trains all 5 models, computes metrics, saves artifacts (.py)
-│   │-- ML_Assignment2.ipynb   # Same workflow as a Jupyter notebook, with EDA + plots (.ipynb)
+│   │-- train_models.py        # Trains all 5 models, computes metrics
+│   │-- ML_Assignment2.ipynb   # Same workflow as a Jupyter notebook, with EDA + plots
 │   │-- logistic_regression.pkl
 │   │-- decision_tree.pkl
 │   │-- knn.pkl
@@ -88,34 +89,32 @@ project-folder/
 │   │-- random_forest_ensemble.pkl
 │   │-- scaler.pkl             # StandardScaler fit on training data
 │   │-- feature_names.pkl      # Expected feature column order
-│   └-- model_comparison.csv   # Metrics table (same numbers as above)
+│   └-- model_comparison.csv   # Metrics table
 ```
 
-## How to Run Locally
+## Running It Locally
 
 ```bash
 pip install -r requirements.txt
-python model/train_models.py     # optional: regenerate models/metrics
+python model/train_models.py     # optional, regenerates the models and metrics
 streamlit run app.py
 ```
 
-## How This Was Deployed
+## Deployment
 
-1. Code pushed to a public GitHub repository (see link above).
-2. Deployed via [Streamlit Community Cloud](https://streamlit.io/cloud):
-   - Sign in with GitHub → **New app** → select this repo → branch `main` →
-     main file `app.py` → **Deploy**.
-3. Live app link: https://mlassignment2-llrypp7bw2dypxlunzchnj.streamlit.app/
+The code lives in this public GitHub repo, and the app itself is deployed on
+Streamlit Community Cloud — signed in with GitHub, pointed it at this repo's
+main branch and `app.py`, and deployed.
 
-## Streamlit App Features
+**Live app:** https://mlassignment2-llrypp7bw2dypxlunzchnj.streamlit.app/
 
-- **Dataset upload (CSV):** Upload your own test CSV (30 feature columns + `target`),
-  or the app falls back to the bundled `test_data.csv`.
-- **Model selection dropdown:** Choose between Logistic Regression, Decision Tree,
-  kNN, Naive Bayes, and Random Forest.
-- **Evaluation metrics display:** Accuracy, AUC, Precision, Recall, F1, MCC computed
-  live on the uploaded data.
-- **Confusion matrix & classification report:** Visual heatmap plus a full
-  per-class precision/recall/F1 report.
-- **Bonus:** Full 5-model comparison table (training-time evaluation) shown at
-  the bottom of the app.
+## What the App Does
+
+- Lets you upload a test CSV (30 feature columns plus a `target` column), or
+  just use the bundled `test_data.csv` if you don't have your own.
+- Has a dropdown to switch between the five models.
+- Shows Accuracy, AUC, Precision, Recall, F1 and MCC for whichever model is
+  selected, computed live on the uploaded data.
+- Displays a confusion matrix and a full classification report.
+- Also includes a bonus comparison table showing all five models side by
+  side, based on the original training-time evaluation.

@@ -178,5 +178,5 @@ else:
     st.warning("Please upload a CSV file to proceed, or ensure test_data.csv is present in the repo.")
 
 st.markdown("---")
-st.caption("BITS Pilani WILP — M.Tech (AIML/DSE) — Machine Learning — Assignment 2")
+st.caption("BITS Pilani WILP — M.Tech (AIML) — Machine Learning — Assignment 2")
 st.caption("Akanksha Khot | 2025AC05508")

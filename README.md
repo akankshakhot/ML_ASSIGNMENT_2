@@ -2,7 +2,7 @@
 
 **Name:** Akanksha Khot
 **ID:** 2025AC05508
-**Course:** M.Tech (AIML/DSE) — Machine Learning, BITS Pilani WILP
+**Course:** M.Tech (AIML) — Machine Learning, BITS Pilani WILP
 
 ## a. Problem Statement
 
@@ -71,3 +71,51 @@ given `random_state=42`. Re-running it will reproduce this exact table.)*
 | **Overall Winner for this dataset** | **Logistic Regression** — it achieves the top score on every single metric (Accuracy 0.9825, AUC 0.9954, Precision/Recall/F1 0.9861, MCC 0.9623), showing that once the features are standardized, a simple, well-regularized linear model is very hard to beat on this particular dataset. |
 
 ## Repository Structure
+
+```
+project-folder/
+│-- app.py                     # Streamlit application
+│-- requirements.txt           # Python dependencies
+│-- README.md                  # This file
+│-- test_data.csv              # Held-out test set (features + true target) used in experiments
+│-- model/
+│   │-- train_models.py        # Trains all 5 models, computes metrics, saves artifacts (.py)
+│   │-- ML_Assignment2.ipynb   # Same workflow as a Jupyter notebook, with EDA + plots (.ipynb)
+│   │-- logistic_regression.pkl
+│   │-- decision_tree.pkl
+│   │-- knn.pkl
+│   │-- naive_bayes.pkl
+│   │-- random_forest_ensemble.pkl
+│   │-- scaler.pkl             # StandardScaler fit on training data
+│   │-- feature_names.pkl      # Expected feature column order
+│   └-- model_comparison.csv   # Metrics table (same numbers as above)
+```
+
+## How to Run Locally
+
+```bash
+pip install -r requirements.txt
+python model/train_models.py     # optional: regenerate models/metrics
+streamlit run app.py
+```
+
+## How This Was Deployed
+
+1. Code pushed to a public GitHub repository (see link above).
+2. Deployed via [Streamlit Community Cloud](https://streamlit.io/cloud):
+   - Sign in with GitHub → **New app** → select this repo → branch `main` →
+     main file `app.py` → **Deploy**.
+3. Live app link: https://mlassignment2-llrypp7bw2dypxlunzchnj.streamlit.app/
+
+## Streamlit App Features
+
+- **Dataset upload (CSV):** Upload your own test CSV (30 feature columns + `target`),
+  or the app falls back to the bundled `test_data.csv`.
+- **Model selection dropdown:** Choose between Logistic Regression, Decision Tree,
+  kNN, Naive Bayes, and Random Forest.
+- **Evaluation metrics display:** Accuracy, AUC, Precision, Recall, F1, MCC computed
+  live on the uploaded data.
+- **Confusion matrix & classification report:** Visual heatmap plus a full
+  per-class precision/recall/F1 report.
+- **Bonus:** Full 5-model comparison table (training-time evaluation) shown at
+  the bottom of the app.
